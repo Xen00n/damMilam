@@ -1,13 +1,27 @@
 import React from 'react';
-import DbStatus from './components/DbStatus';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Logoo from './assets/logoo.png'
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Profile from './pages/Profile';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Messages from './pages/Messages';
 
 function App() {
   return (
     <div className="container mx-auto mt-10">
-      <h1 className="text-4xl font-bold mb-4">damMilam</h1>
-      <img src={Logoo} alt="logo" className='w-36 h-36'/>
-      <DbStatus />
+      <Router>
+            <Navbar />
+            <Routes>
+                <Route path="/home" exact element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/Signup" element={<Signup />} />
+                <Route path="/Messages" celement={<Messages />} />
+                {/* Add other routes as needed */}
+            </Routes>
+        </Router>
     </div>
   );
 }
