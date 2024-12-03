@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Logoo from './assets/logoo.png'
 import Navbar from './components/Navbar';
+import VerifyEmail from './components/VerifyEmail';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
@@ -14,6 +14,7 @@ function App() {
       <Router>
             <Navbar />
             <Routes>
+                <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/home" exact element={<Home />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/login" element={<Login />} />

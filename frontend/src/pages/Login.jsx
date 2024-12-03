@@ -1,27 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // If you're using it for backend API
+import axios from 'axios';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         try {
-            // Replace with your backend endpoint and credentials logic
-            const response = await axios.post('/api/login', { email, password });
+            const response = await axios.post(`http://localhost:56840/api/login`, { email, password },
+                { headers: { 'Content-Type': 'application/json' }});
             if (response.data.success) {
-                // Save token if needed and redirect
-                navigate('/home'); // Redirect to Home after successful login
+                // Save the JWT token to localStorage or sessionStorage
+                localStorage.setItem('authToken', response.data.token);
+
+                // Redirect to Home after successful login
+                navigate('/home');
             } else {
                 setError('Invalid credentials');
             }
         } catch (err) {
-            setError('An error occurred during login');
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message);
+            } else {
+                setError('An error occurred during login');
+            }
         }
     };
 
@@ -29,7 +35,7 @@ const Login = () => {
         <div className="flex justify-center items-center min-h-screen bg-light dark:bg-gray-900">
             <div className="bg-white p-8 rounded shadow-md w-full max-w-md dark:bg-gray-800">
                 <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Login</h2>
-                {error && <div className="mb-4 text-red-500">{error}</div>}
+                {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label htmlFor="email" className="block mb-1 text-gray-600 dark:text-gray-300">Email</label>
