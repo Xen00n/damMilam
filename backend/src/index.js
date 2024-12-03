@@ -2,7 +2,14 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url';  
+import { dirname } from 'path'; 
+import fs from 'fs';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 dotenv.config();
 
 const app = express();
@@ -17,15 +24,20 @@ const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB!');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
-      .on('error', (err) => {
-        if (err.code === 'EADDRINUSE') {
-          console.error(`Port ${PORT} is already in use. Trying another port...`);
-          app.listen(0, () => console.log(`Server is running on a dynamic port`));
-        } else {
-          console.error(err);//for error
-        }
-      });
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${server.address().port}`);
+    }).on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Trying another port...`);
+        // Start the server again with dynamic port (0 will allow dynamic allocation)
+        const dynamicServer = app.listen(0, () => {
+          console.log(`Server is running on a dynamic port: ${dynamicServer.address().port}`);
+          const dynamicPort = dynamicServer.address().port;
+        });
+      } else {
+        console.error(err); // For any other error
+      }
+    });
   })
   .catch(err => console.error('Failed to connect to MongoDB:', err));
 
@@ -34,15 +46,4 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-app.get('/api/db-status', async (req, res) => {
-  const state = mongoose.connection.readyState;
-  // Mongoose connection states: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
-  const statusMap = {
-    0: 'Disconnected',
-    1: 'Connected',
-    2: 'Connecting',
-    3: 'Disconnecting',
-  };
-
-  res.json({ status: statusMap[state] || 'Unknown' });
-});
+app.use('/api', authRoutes);
