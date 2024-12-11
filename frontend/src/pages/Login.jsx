@@ -11,7 +11,7 @@ const Login = () => {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post(`http://localhost:56840/api/login`, { email, password },
+            const response = await axios.post(`http://localhost:5000/api/login`, { email, password },
                 { headers: { 'Content-Type': 'application/json' }});
             if (response.data.success) {
                 // Save the JWT token to localStorage or sessionStorage

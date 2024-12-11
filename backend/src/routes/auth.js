@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
 
+
 const router = express.Router();
 dotenv.config();
 
@@ -17,6 +18,31 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+//profile
+
+router.get('/profile', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1]; // Extract token from "Bearer <token>"
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Decode the token
+    const user = await User.findById(decoded.id).select('-password'); // Retrieve user data without password
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.status(200).json({ success: true, user }); // Respond with user data
+  } catch (error) {
+    console.error('Profile Error:', error);
+    res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
+
+
+});
 // Signup Route
 router.post('/signup', async (req, res) => {
   const { name, email, password } = req.body;
@@ -61,8 +87,9 @@ router.post('/signup', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error occurred during signup.' });
   }
 });
+//login
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password} = req.body;
   try {
     console.log('Login request received:', req.body);
 
