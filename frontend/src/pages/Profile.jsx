@@ -21,8 +21,8 @@ const Profile = () => {
           navigate("/login");
           return;
         }
-
         const userResponse = await axios.get(`http://localhost:5000/api/profile`, {
+
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(userResponse.data.user);

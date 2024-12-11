@@ -16,7 +16,7 @@ const Signup = () => {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post(`http://localhost:5000/api/signup`, formData);
+            const response = await axios.post(`http://localhost:6969/api/signup`, formData);
             if (response.data.success) {
                 setShowModal(true);
                 // Automatically redirect to login after 3 seconds

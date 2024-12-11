@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import Logoo from "../assets/logoo.png";
 
+
+const Navbar = (props) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
 
   // Toggle menu visibility
   const handleMenuToggle = () => {
@@ -47,78 +52,60 @@ const Navbar = () => {
             </svg>
           </button>
 
-          <div
-            className={`w-full md:block md:w-auto ${
-              isMenuOpen ? "" : "hidden"
-            }`}
-            id="navbar-default"
-          >
-            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-light rounded-lg bg-light md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-light dark:bg-gray-900 md:dark:bg-gray-900 dark:border-dark">
-              <li>
-                <NavLink
-                  to="/home"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent"
-                      : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"
-                  }
-                >
-                  Home
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/profile"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent"
-                      : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"
-                  }
-                >
-                  Profile
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/messages"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent"
-                      : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"
-                  }
-                >
-                  Messages
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/login"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent"
-                      : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"
-                  }
-                >
-                  Login
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/signup"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent"
-                      : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"
-                  }
-                >
-                  Signup
-                </NavLink>
-              </li>
-            </ul>
-          </div>
+                    <div className={`w-full md:block md:w-auto ${isMenuOpen ? '' : 'hidden'}`} id="navbar-default">
+                        <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-light rounded-lg bg-light md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-light dark:bg-gray-900 md:dark:bg-gray-900 dark:border-dark">
+                        <li>
+                                <NavLink 
+                                    to="/home" 
+                                    className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
+                                    Home
+                                </NavLink>
+                            </li>
+                            {props.isLogedIn?(<>
+                                <li>
+                                <NavLink 
+                                    to="/profile" 
+                                    className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
+                                    Profile
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink 
+                                    to="/messages" 
+                                    className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
+                                    Messages
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink 
+                                    to="/logout" 
+                                    className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
+                                    Logout
+                                </NavLink>
+                            </li>
+                            </>):(<>
+                                <li>
+                                <NavLink 
+                                    to="/login" 
+                                    className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
+                                    Login
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink 
+                                    to="/signup" 
+                                    className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
+                                    Signup
+                                </NavLink>
+                            </li>
+                            </>)}
+                            
+                            
+                        </ul>
+                    </div>
+                </div>
+            </nav>
         </div>
-      </nav>
-    </div>
   );
 };
 
