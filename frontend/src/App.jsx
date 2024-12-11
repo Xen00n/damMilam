@@ -7,6 +7,8 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Messages from './pages/Messages';
+import AddProduct from './pages/AddProduct';
+
 
 function App() {
   return (
@@ -19,7 +21,9 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/Signup" element={<Signup />} />
-                <Route path="/Messages" celement={<Messages />} />
+                <Route path="/Messages" element={<Messages />} />
+                <Route path="/add-product" element={<AddProduct />} />
+
                 {/* Add other routes as needed */}
             </Routes>
         </Router>
@@ -27,4 +31,4 @@ function App() {
   );
 }
 
-export default App;    
+export default App;
