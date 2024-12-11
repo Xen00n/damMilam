@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import { NavLink } from 'react-router-dom';
 import Logoo from '../assets/logoo.png';
 
-const Navbar = () => {
+const Navbar = (props) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // Toggle menu visibility
@@ -39,7 +39,8 @@ const Navbar = () => {
                                     Home
                                 </NavLink>
                             </li>
-                            <li>
+                            {props.isLogedIn?(<>
+                                <li>
                                 <NavLink 
                                     to="/profile" 
                                     className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
@@ -55,6 +56,14 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <NavLink 
+                                    to="/logout" 
+                                    className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
+                                    Logout
+                                </NavLink>
+                            </li>
+                            </>):(<>
+                                <li>
+                                <NavLink 
                                     to="/login" 
                                     className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
                                     Login
@@ -67,6 +76,9 @@ const Navbar = () => {
                                     Signup
                                 </NavLink>
                             </li>
+                            </>)}
+                            
+                            
                         </ul>
                     </div>
                 </div>

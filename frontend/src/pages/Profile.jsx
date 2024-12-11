@@ -22,7 +22,7 @@ const Profile = () => {
         }
 
         // Fetch User Details
-        const userResponse = await axios.get(`http://localhost:5000/api/profile`, {
+        const userResponse = await axios.get(`http://localhost:6969/api/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log("User  Response:", userResponse.data);
@@ -58,13 +58,12 @@ const Profile = () => {
 
     fetchData();
   }, [navigate]);
-
   return (
     <div className="p-6 bg-light dark:bg-gray-900 min-h-screen">
       <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded shadow-md p-6">
         <div className="flex items-center mb-6">
           <img
-            src={user.profilePicture || "https://via.placeholder.com/150"}
+            src={"https://via.placeholder.com/150"}
             alt="Profile"
             className="w-20 h-20 rounded-full border-2 border-gray-300"
           />

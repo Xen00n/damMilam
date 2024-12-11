@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Login = () => {
+const Login = (props) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -11,12 +11,12 @@ const Login = () => {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post(`http://localhost:5000/api/login`, { email, password },
+            const response = await axios.post(`http://localhost:6969/api/login`, { email, password },
                 { headers: { 'Content-Type': 'application/json' }});
             if (response.data.success) {
                 // Save the JWT token to localStorage or sessionStorage
                 localStorage.setItem('authToken', response.data.token);
-
+                props.setisLogedIn(true);
                 // Redirect to Home after successful login
                 navigate('/home');
             } else {

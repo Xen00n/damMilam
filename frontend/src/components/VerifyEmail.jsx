@@ -13,7 +13,7 @@ const VerifyEmail = () => {
 
     if (token) {
       // Make API request to verify the email
-      axios.get(`http://localhost:5000/api/verify-email?token=${token}`)
+      axios.get(`http://localhost:6969/api/verify-email?token=${token}`)
         .then((response) => {
           setMessage(response.data.message);  // Show success message
           setTimeout(() => {

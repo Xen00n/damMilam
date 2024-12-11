@@ -29,12 +29,15 @@ router.get('/profile', async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // Decode the token
-    const user = await User.findById(decoded.id).select('-password'); // Retrieve user data without password
+    const user_not_modified = await User.findById(decoded.id).select('-password'); // Retrieve user data without password
 
-    if (!user) {
+    if (!user_not_modified) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-
+    const user = {
+      ...user_not_modified._doc,
+      memberSince: user_not_modified.memberSince.toISOString().split('T')[0], // Format date to 'YYYY-MM-DD'
+    };
     res.status(200).json({ success: true, user }); // Respond with user data
   } catch (error) {
     console.error('Profile Error:', error);
