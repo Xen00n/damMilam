@@ -8,6 +8,8 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Messages from './pages/Messages';
+import AddProduct from './pages/AddProduct';
+
 
 function App() {
   const [isLogedIn, setisLogedIn] = useState(false);
@@ -18,16 +20,16 @@ function App() {
             <Routes>
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/home" exact element={<Home />} />
-                <Route path="/profile" element={<Profile />} />
                 <Route path="/logout" element={<Logout setisLogedIn = {setisLogedIn}/>} />) 
                 (<Route path="/login" element={<Login isLogedIn = {isLogedIn} setisLogedIn = {setisLogedIn}/>} />
                 <Route path="/Signup" element={<Signup />} />)
                 <Route path="/Messages" element={<Messages />} />
-                {/* Add other routes as needed */}
+                <Route path="/add-product" element={<AddProduct />} />
             </Routes>
         </Router>
     </div>
   );
 }
 
-export default App;   
+export default App;
+
