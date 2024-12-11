@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Logout from './components/Logout';
@@ -12,7 +12,13 @@ import AddProduct from './pages/AddProduct';
 
 
 function App() {
-  const [isLogedIn, setisLogedIn] = useState(false);
+  const [isLogedIn, setisLogedIn] = useState(() => {
+    return !!localStorage.getItem('authToken');
+  });
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    setisLogedIn(!!token);
+  }, []);
   return (
     <div className="container mx-auto mt-10">
       <Router>
@@ -21,9 +27,10 @@ function App() {
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/home" exact element={<Home />} />
                 <Route path="/logout" element={<Logout setisLogedIn = {setisLogedIn}/>} />) 
-                (<Route path="/login" element={<Login isLogedIn = {isLogedIn} setisLogedIn = {setisLogedIn}/>} />
-                <Route path="/Signup" element={<Signup />} />)
-                <Route path="/Messages" element={<Messages />} />
+                <Route path="/login" element={<Login isLogedIn = {isLogedIn} setisLogedIn = {setisLogedIn}/>} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/add-product" element={<AddProduct />} />
             </Routes>
         </Router>

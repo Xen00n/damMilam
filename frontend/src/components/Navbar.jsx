@@ -2,11 +2,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import Logoo from "../assets/logoo.png";
 
-
-const Navbar = (props) => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-const Navbar = () => {
+const Navbar = ({isLogedIn}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 
@@ -61,7 +57,7 @@ const Navbar = () => {
                                     Home
                                 </NavLink>
                             </li>
-                            {props.isLogedIn?(<>
+                            {isLogedIn?(<>
                                 <li>
                                 <NavLink 
                                     to="/profile" 

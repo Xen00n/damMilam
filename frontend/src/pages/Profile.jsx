@@ -21,7 +21,7 @@ const Profile = () => {
           navigate("/login");
           return;
         }
-        const userResponse = await axios.get(`http://localhost:5000/api/profile`, {
+        const userResponse = await axios.get(`http://localhost:6969/api/profile`, {
 
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -171,7 +171,7 @@ const Profile = () => {
           </button>
           <button
                 onClick={() => navigate("/add-product")}
-                className="`font-bold text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"
+                className="font-bold text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"
                 
            >
              Add Product
