@@ -3,13 +3,8 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
-import path from 'path';
-import { fileURLToPath } from 'url';  
-import { dirname } from 'path'; 
-import fs from 'fs';
+import productRoutes from './routes/productRoutes.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 dotenv.config();
 
 const app = express();
@@ -32,7 +27,6 @@ mongoose.connect(process.env.MONGO_URI)
         // Start the server again with dynamic port (0 will allow dynamic allocation)
         const dynamicServer = app.listen(0, () => {
           console.log(`Server is running on a dynamic port: ${dynamicServer.address().port}`);
-          const dynamicPort = dynamicServer.address().port;
         });
       } else {
         console.error(err); // For any other error
@@ -47,3 +41,4 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', authRoutes);
+app.use('/api', productRoutes);

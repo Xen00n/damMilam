@@ -26,7 +26,13 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(userResponse.data.user);
-
+        const productResponse = await axios.get(
+          "http://localhost:6969/api/products", // Assuming this endpoint returns the user's products
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setProducts(productResponse.data.products);
         // // Fetch data for all tabs initially
         // const [productResponse, cartResponse, historyResponse] = await Promise.all([
         //   axios.get("http://localhost:5000/api/products", {
@@ -51,37 +57,41 @@ const Profile = () => {
 
     fetchData();
   }, [navigate]);
-
+  
   const renderContent = () => {
     switch (activeTab) {
       case "products":
-        return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {products.length > 0 ? (
-              products.map((product) => (
-                <div
-                  key={product.id}
-                  className="border rounded p-4 bg-gray-100 dark:bg-gray-700"
-                >
-                  <h3 className="font-bold dark:text-white">{product.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {product.description}
-                  </p>
-                  <p className="text-green-500 dark:text-green-400">
-                    Rs. {product.price}
-                  </p>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    {product.status}
-                  </p>
+      return (
+        <div className="flex flex-col gap-6">
+          {products.length > 0 ? (
+            products.map((product) => (
+              <div
+                key={product._id}
+                className="border rounded p-4 bg-gray-100 dark:bg-gray-700 flex flex-col w-full"
+              >
+                {/* Product Image */}
+                <img
+                  src={product.photo || "https://via.placeholder.com/150"} // Display product image, fallback if not available
+                  alt={product.title}
+                  className="w-full h-64 object-contain rounded mb-4" // Adjusted for better image size
+                />
+
+                {/* Product Details */}
+                <div className="flex flex-col items-start w-full">
+                  <h3 className="font-bold dark:text-white">Title: {product.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-300">Description: {product.description}</p>
+                  <p className="text-green-500 dark:text-green-400">Price: Rs. {product.price}</p>
+                  <p className="text-gray-500 dark:text-gray-400">Product Status: {product.status}</p>
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-600 dark:text-gray-300">
-                No products added yet.
-              </p>
-            )}
-          </div>
-        );
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600 dark:text-gray-300">
+              No products added yet.
+            </p>
+          )}
+        </div>
+      );
       case "cart":
         return (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

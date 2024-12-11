@@ -12,33 +12,39 @@ const AddProduct = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("status", "Available"); // Assuming a default status
+    formData.append("photo", photo);
+
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        setError("Unauthorized. Please log in.");
+        navigate("/login");
         return;
       }
 
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("price", price);
-      if (photo) {
-        formData.append("photo", photo);
-      }
-
-      await axios.post("http://localhost:6969/api/products", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      navigate("/profile"); // Redirect back to profile after adding
-    } catch (err) {
-      setError("Failed to add product. Please try again.");
+      const response = await axios.post(
+        "http://localhost:6969/api/add-product",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data", // Required for file upload
+          },
+        }
+      );
+      console.log("Product added:", response.data);
+      navigate("/profile"); // Redirect to profile after adding product
+    } catch (error) {
+      console.error("Error adding product:", error);
+      setError("An error occurred while adding the product.");
     }
   };
+  
 
   return (
     <div className=" bg-light dark:bg-gray-900 min-h-screen flex items-center justify-center">
@@ -111,7 +117,7 @@ const AddProduct = () => {
 
           <button
             type="button"
-            className=" abosulute mr-8 px-4 py-2 bg-green-600 hover:bg-green-900 text-white rounded"
+            className=" absolute mr-8 px-4 py-2 bg-green-600 hover:bg-green-900 text-white rounded"
             onClick={() => navigate("/profile")}
           >
             Cancel
