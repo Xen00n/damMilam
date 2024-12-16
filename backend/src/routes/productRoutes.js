@@ -29,7 +29,7 @@ const upload = multer({
 // Initialize router
 const router = Router();
 
-router.get('/products', verifyToken, async (req, res) => {
+router.get('/products-user', verifyToken, async (req, res) => {
     try {
       // Fetch products belonging to the authenticated user
       const products = await Product.find({ user: req.user.id });
@@ -100,6 +100,15 @@ router.post('/add-product', verifyToken, upload.single('photo'), async (req, res
   } catch (err) {
     console.error("Error in product route:", err);
     res.status(500).json({ message: 'Server error. Could not add product.', error: err });
+  }
+});
+
+router.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find().populate('user', 'name email'); // Populate the user field to get user details
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ message: 'Server Error', error: err });
   }
 });
 
