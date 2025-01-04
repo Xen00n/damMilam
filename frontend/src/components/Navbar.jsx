@@ -16,7 +16,7 @@ const Navbar = ({isLogedIn}) => {
       <nav className="bg-light border-gray-200 dark:bg-gray-900">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-8">
           <a
-            href="http://localhost:5173/home"
+            href="http://localhost:5173/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img src={Logoo} className="h-14" alt="Logo" />
@@ -52,7 +52,7 @@ const Navbar = ({isLogedIn}) => {
                         <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-light rounded-lg bg-light md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-light dark:bg-gray-900 md:dark:bg-gray-900 dark:border-dark">
                         <li>
                                 <NavLink 
-                                    to="/home" 
+                                    to="/" 
                                     className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
                                     Home
                                 </NavLink>

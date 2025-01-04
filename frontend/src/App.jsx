@@ -24,8 +24,8 @@ function App() {
       <Router>
             <Navbar isLogedIn = {isLogedIn}/>
             <Routes>
+                <Route path="/" element={<Home />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
-                <Route path="/home" exact element={<Home />} />
                 <Route path="/logout" element={<Logout setisLogedIn = {setisLogedIn}/>} />) 
                 <Route path="/login" element={<Login isLogedIn = {isLogedIn} setisLogedIn = {setisLogedIn}/>} />
                 <Route path="/signup" element={<Signup />} />

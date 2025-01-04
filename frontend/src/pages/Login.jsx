@@ -18,7 +18,7 @@ const Login = (props) => {
                 localStorage.setItem('authToken', response.data.token);
                 props.setisLogedIn(true);
                 // Redirect to Home after successful login
-                navigate('/home');
+                navigate('/');
             } else {
                 setError('Invalid credentials');
             }
