@@ -86,6 +86,154 @@ router.get('/profile', async (req, res) => {
 
 
 });
+router.put('/change-password', authenticate, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the current password is correct
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Change Password Error:', error);
+    res.status(500).json({ message: 'Error occurred during password change' });
+  }
+});
+// Ensure authenticate middleware is applied before accessing req.user.id
+router.put("/change-name", authenticate, async (req, res) => {
+  try {
+    // Check if req.user is properly set
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    const userId = req.user.id; // This is where the error occurs
+    const { name } = req.body;
+
+    // Proceed with name update logic
+    const updatedUser = await User.findByIdAndUpdate(userId, { name }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ user: updatedUser });
+  } catch (err) {
+    console.error("Error in change-name route:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+// Route to initiate email change
+router.post('/request-email-change', authenticate, async (req, res) => {
+  const { newEmail } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the new email is already in use
+    const existingUser = await User.findOne({ email: newEmail });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    // Generate email verification token
+    const token = jwt.sign(
+      { 
+        newEmail,  // New email
+        userId,    // User ID
+        type: 'change-email',  // This is what the backend expects to validate
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }  // Expiry time
+    );
+
+    // Save the new email and the verification token temporarily
+    user.newEmail = newEmail;
+    user.emailVerificationToken = token;
+    user.isVerified = false; // Set to false, to mark that the new email needs verification
+    await user.save();
+
+    // Send verification email
+    const verificationLink = `${process.env.CLIENT_URL}/verify-email-change?token=${token}`;
+    await transporter.sendMail({
+      from: `"DamMilam Team" <${process.env.EMAIL_USER}>`,
+      to: newEmail,
+      subject: 'Verify Your New Email - DamMilam',
+      html: `
+        <h1>Verify Your New Email</h1>
+        <p>Click the link below to verify your new email address:</p>
+        <a href="${verificationLink}">Verify Email</a>
+        <p>If you didn’t request this, you can safely ignore this email.</p>
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Email change requested. Please verify your new email.',
+    });
+  } catch (error) {
+    console.error('Email Change Error:', error);
+    res.status(500).json({ message: 'Error occurred during email change.' });
+  }
+});
+router.get('/verify-email-change', async (req, res) => {
+  const { token } = req.query;  // Get the token from the query parameters
+
+  if (!token) {
+    return res.status(400).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Check if token is for email change
+    if (decoded.type !== 'change-email') {
+      return res.status(400).json({ message: 'Invalid token type' });
+    }
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the user's email
+    user.email = decoded.newEmail;
+    user.isVerified = true;
+    user.emailVerificationToken = null; // Clear the verification token
+    await user.save();
+
+    return res.status(200).json({
+      message: 'Email successfully changed and verified!'
+    });
+  } catch (error) {
+    console.error('Verification error: ', error);
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
+});
+
+
 // Signup Route
 router.post('/signup', async (req, res) => {
   const { name, email, password } = req.body;

@@ -9,6 +9,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Groups from './pages/Groups';
 import AddProduct from './pages/AddProduct';
+import EditProfile from './pages/EditProfile';
+import VerifyEmailChange from './components/VerifyEmailChange';
 
 
 function App() {
@@ -39,12 +41,14 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home isLoggedIn = {isLogedIn}/>} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/verify-email-change" element={<VerifyEmailChange />} />
                 <Route path="/logout" element={<Logout setisLogedIn = {setisLogedIn}/>} />) 
                 <Route path="/login" element={<Login isLogedIn = {isLogedIn} setisLogedIn = {setisLogedIn}/>} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/groups" element={<Groups />} />
                 <Route path="/profile" element={<Profile setisLogedIn = {setisLogedIn}/>} />
                 <Route path="/add-product" element={<AddProduct />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
             </Routes>
         </Router>
     </div>
