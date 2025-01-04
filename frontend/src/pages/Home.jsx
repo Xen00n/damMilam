@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Home = ({ isLogedIn }) => {
+const Home = ({ isLoggedIn }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,9 +20,44 @@ const Home = ({ isLogedIn }) => {
 
     fetchProducts();
   }, []);
-
-  const handleCreateGroup = (productName, productId) => {
-    console.log(`Creating bargaining group for product: "${productName}" with ID ${productId}`);
+  const handleCreateGroup = (productName, productId, price) => {
+    if (!isLoggedIn) {
+      alert('You need to log in first to create a bargaining group');
+      return;
+    }
+  
+    const token = localStorage.getItem('authToken');
+  
+    const createGroup = async () => {
+      try {
+        const groupData = {
+          productName,  // Send productName
+          productId,    // Send productId
+          price,         // Send price
+          groupName: productName, // Send groupName (same as productName)
+        };
+  
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+  
+        const response = await axios.post('http://localhost:6969/api/bargaining-group/create', groupData, config);
+  
+        if (response.data.success) {
+          console.log('Bargaining group created successfully:', response.data.group);
+          alert('Bargaining group created successfully!');
+        } else {
+          alert('Failed to create bargaining group');
+        }
+      } catch (error) {
+        console.error('Error creating group:', error);
+        alert('Error creating bargaining group. Please try again.');
+      }
+    };
+  
+    createGroup();
   };
 
   if (loading) {
@@ -52,13 +87,13 @@ const Home = ({ isLogedIn }) => {
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{product.title}</h2>
             <p className="text-lg text-gray-700 dark:text-gray-300 mt-2">{product.description}</p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mt-2 font-bold">
-              Price: <span className='text-green-500'>${product.price}</span>
+              Price: <span className="text-green-500">${product.price}</span>
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Seller: {product.user.name}</p>
 
             <div className="mt-4">
               <button
-                onClick={() => handleCreateGroup(product.title, product._id)}
+                onClick={() => handleCreateGroup(product.title, product._id, product.price)} // Pass product name, id, and price
                 className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg w-full transition-all duration-300 transform hover:scale-105"
               >
                 Create Bargaining Group

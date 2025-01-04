@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Profile = () => {
+const Profile = (props) => {
   const [user, setUser] = useState({});
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -10,6 +10,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("products");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const navigate = useNavigate();
 
@@ -19,11 +20,19 @@ const Profile = () => {
         const token = localStorage.getItem("authToken");
         if (!token) {
           console.log("No token found, redirecting to login");
+          props.setisLogedIn(false);
           navigate("/login");
           return;
         }
 
         setLoading(true);
+        const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+      const isExpired = tokenPayload.exp * 1000 < Date.now();
+      if (isExpired) {
+        setSessionExpired(true);
+        props.setisLogedIn(false);
+        return;
+      }
         const userResponse = await axios.get(
           `http://localhost:6969/api/profile`,
           {
@@ -214,7 +223,25 @@ const Profile = () => {
     History
   </button>
 </div>
-
+{sessionExpired && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="bg-white rounded p-6 text-center shadow">
+      <h2 className="text-lg font-bold text-red-600">Session Expired</h2>
+      <p className="text-gray-700 mt-2">
+        Your session has expired. Please log in again to continue.
+      </p>
+      <button
+        onClick={() => {
+          localStorage.removeItem("authToken");
+          navigate("/login");
+        }}
+        className="bg-red-600 text-white px-4 py-2 rounded mt-4"
+      >
+        Log In
+      </button>
+    </div>
+  </div>
+)}
         {renderContent()}
 
         {error && <div className="mt-6 text-red-500">{error}</div>}

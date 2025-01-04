@@ -20,6 +20,46 @@ const transporter = nodemailer.createTransport({
 
 //profile
 
+export const authenticate = async (req, res, next) => {
+  const token = req.header('Authorization')?.split(' ')[1]; // Extract token from "Bearer <token>"
+
+  console.log('Received Token:', token); // Log the received token
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Attach the decoded user information to the request object
+    req.user = await User.findById(decoded.id); // Assuming the token has the user's ID
+
+    // Proceed to the next middleware/route
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
+router.get('/user/profile', authenticate, async (req, res) => {
+  try {
+    const user = req.user; // The authenticated user attached by authenticate middleware
+
+    // Return user details (like _id, name, etc.)
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      // Any other fields you need to return
+    });
+  } catch (err) {
+    console.error('Error fetching user data', err);
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+});
+
 router.get('/profile', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1]; // Extract token from "Bearer <token>"
 

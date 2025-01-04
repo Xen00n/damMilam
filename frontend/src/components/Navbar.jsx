@@ -67,9 +67,9 @@ const Navbar = ({isLogedIn}) => {
                             </li>
                             <li>
                                 <NavLink 
-                                    to="/messages" 
+                                    to="/groups" 
                                     className={({ isActive }) => isActive ? "text-green-700 dark:text-green-600 block py-2 px-3 bg-gray-200 md:bg-transparent" : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:dark:text-green-600 block py-2 px-3"}>
-                                    Messages
+                                    Groups
                                 </NavLink>
                             </li>
                             <li>
