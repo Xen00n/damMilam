@@ -11,6 +11,7 @@ import Groups from './pages/Groups';
 import AddProduct from './pages/AddProduct';
 import EditProfile from './pages/EditProfile';
 import VerifyEmailChange from './components/VerifyEmailChange';
+import MessagePage from './pages/MessagePage';
 
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
                 <Route path="/profile" element={<Profile setisLogedIn = {setisLogedIn}/>} />
                 <Route path="/add-product" element={<AddProduct />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
+                <Route path="/groups/:groupId/messages" element={<MessagePage />} />
             </Routes>
         </Router>
     </div>

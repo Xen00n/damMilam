@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Groups = () => {
@@ -10,7 +11,7 @@ const Groups = () => {
   const [showRolePrompt, setShowRolePrompt] = useState(false); // For controlling the role prompt modal
   const [selectedGroupId, setSelectedGroupId] = useState(null); // Store the group ID for which user is requesting
   const [showRequests, setShowRequests] = useState(null); // Track which group's request dropdown should be visible
-
+  const navigate = useNavigate();
   // Fetch user info and groups when the component mounts
   useEffect(() => {
     const fetchUserAndGroups = async () => {
@@ -81,7 +82,9 @@ const Groups = () => {
       alert('Error sending join request');
     }
   };
-
+  const handleEnterMessages = (groupId) => {
+    navigate(`/groups/${groupId}/messages`);
+  };
   // Handle accept/reject actions for group requests (only for group owner)
   const handleAcceptRejectRequest = async (groupId, requestId, status) => {
     try {
@@ -178,7 +181,7 @@ const Groups = () => {
             {/* Show the button based on user access */}
             {group.hasAccess ? (
               <button
-                onClick={() => console.log(`Entering messages for group: ${group._id}`)}
+                onClick={() => handleEnterMessages(group._id)}
                 className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg w-full mt-4"
               >
                 Message
