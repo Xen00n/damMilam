@@ -53,7 +53,7 @@ router.post('/create', authenticate, async (req, res) => {
       const newGroup = new Group({
         productId,
         userId, // Set the creator of the group as the user
-        access: [userId], // Initially, the creator has access
+        access: [{ userId, role: 'buyer' }], // Initially, the creator has access
         participants: [], // No participants yet
         requests: [], // No requests yet
         name: productName, // Set the group name as the product name
@@ -155,8 +155,8 @@ router.post('/accept-reject/:groupId/:requestId', authenticate, async (req, res)
     const request = group.requests[requestIndex]; // Get the request from the array
 
     if (req.body.status === 'accepted') {
-      // Add the user to the access list if the request is accepted
-      group.access.push(request.userId);
+      // Add the user to the access list with their role if the request is accepted
+      group.access.push({ userId: request.userId, role: request.role });
     }
 
     // Set the request's status to either "accepted" or "rejected"
