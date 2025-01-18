@@ -5,34 +5,35 @@ import axios from 'axios';
 const Groups = () => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState('buyer'); // Default role can be buyer or seller
-  const [userName, setUserName] = useState(''); // To store the logged-in user's name
-  const [userId, setUserId] = useState(null); // Initialize as null until we get the real userId
-  const [showRolePrompt, setShowRolePrompt] = useState(false); // For controlling the role prompt modal
-  const [selectedGroupId, setSelectedGroupId] = useState(null); // Store the group ID for which user is requesting
-  const [showRequests, setShowRequests] = useState(null); // Track which group's request dropdown should be visible
+  const [role, setRole] = useState('buyer'); // Default role
+  const [userName, setUserName] = useState(''); // Logged-in user's name
+  const [userId, setUserId] = useState(null); // Logged-in user's ID
+  const [showRolePrompt, setShowRolePrompt] = useState(false); // Role selection modal control
+  const [selectedGroupId, setSelectedGroupId] = useState(null); // Group ID for join request
+  const [showRequests, setShowRequests] = useState(null); // Track request dropdown visibility
   const navigate = useNavigate();
-  // Fetch user info and groups when the component mounts
+
+  // Fetch user and groups data on component mount
   useEffect(() => {
     const fetchUserAndGroups = async () => {
       try {
-        const token = localStorage.getItem('authToken'); // Get the auth token from localStorage
+        const token = localStorage.getItem('authToken');
         if (token) {
           const config = {
             headers: {
-              Authorization: `Bearer ${token}`, // Use token in headers
+              Authorization: `Bearer ${token}`,
             },
           };
 
-          // Fetch user info to get userId and username (name or username depending on your user model)
+          // Fetch user info
           const userResponse = await axios.get('http://localhost:6969/api/user/profile', config);
-          const loggedInUser = userResponse.data; // Assuming response has the user data
-          setUserId(loggedInUser._id); // Set the userId from the response
-          setUserName(loggedInUser.name || loggedInUser.username); // Set the name or username
+          const loggedInUser = userResponse.data;
+          setUserId(loggedInUser._id);
+          setUserName(loggedInUser.name || loggedInUser.username);
 
-          // Get groups data from the backend, including username and userId for the group owner
+          // Fetch groups data
           const groupResponse = await axios.get('http://localhost:6969/api/bargaining-group/', config);
-          setGroups(groupResponse.data); // Set the groups data
+          setGroups(groupResponse.data);
         }
         setLoading(false);
       } catch (err) {
@@ -44,13 +45,26 @@ const Groups = () => {
     fetchUserAndGroups();
   }, []);
 
-  // Handle sending a join request for a group
+  // Check if the logged-in user has access to the group
+  const hasAccess = (group) => {
+    return group.access.some((entry) =>
+      typeof entry === 'string' ? entry === userId : entry.userId === userId
+    );
+  };
+  const isGroupExpired = (createdAt) => {
+    const createdDate = new Date(createdAt);
+    const expirationDate = new Date(createdDate);
+    expirationDate.setDate(expirationDate.getDate() +7);
+    return new Date() > expirationDate; // Returns true if expired
+  };
+  
+  // Handle join request for a group
   const handleRequestJoin = (groupId) => {
-    setSelectedGroupId(groupId); // Store the group ID
-    setShowRolePrompt(true); // Show the role selection modal
+    setSelectedGroupId(groupId);
+    setShowRolePrompt(true);
   };
 
-  // Handle role selection (buyer or seller)
+  // Handle role selection for join request
   const handleRoleSelection = async () => {
     try {
       if (!role || !['buyer', 'seller'].includes(role)) {
@@ -63,32 +77,33 @@ const Groups = () => {
         return;
       }
 
-      // Send the join request
       const response = await axios.post(
         `http://localhost:6969/api/bargaining-group/request/${selectedGroupId}`,
-        { role, name: userName }, // Send the role and the user's name to the backend
+        { role, name: userName },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Authorization header with token
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`,
           },
         }
       );
 
-      console.log('Response from API:', response.data); // Log successful response
       alert('Join request sent successfully');
-      setShowRolePrompt(false); // Close the role selection prompt after successful request
+      setShowRolePrompt(false);
     } catch (err) {
       console.error('Error sending join request:', err);
       alert('Error sending join request');
     }
   };
+
+  // Navigate to the group's message page
   const handleEnterMessages = (groupId) => {
     navigate(`/groups/${groupId}/messages`);
   };
-  // Handle accept/reject actions for group requests (only for group owner)
+
+  // Handle accept/reject actions for group requests
   const handleAcceptRejectRequest = async (groupId, requestId, status) => {
     try {
-      const response = await axios.post(
+      await axios.post(
         `http://localhost:6969/api/bargaining-group/accept-reject/${groupId}/${requestId}`,
         { status },
         {
@@ -97,8 +112,10 @@ const Groups = () => {
           },
         }
       );
+
       alert(`Request ${status} successfully`);
 
+      // Update the groups state
       setGroups((prevGroups) =>
         prevGroups.map((group) =>
           group._id === groupId
@@ -110,7 +127,7 @@ const Groups = () => {
         )
       );
     } catch (err) {
-      console.error('Error accepting/rejecting request', err);
+      console.error('Error processing request:', err);
       alert('Error processing request');
     }
   };
@@ -125,7 +142,6 @@ const Groups = () => {
         Bargaining Groups
       </h1>
 
-      {/* List all groups vertically, each taking full width */}
       <div className="space-y-8">
         {groups.map((group) => (
           <div
@@ -141,66 +157,70 @@ const Groups = () => {
                 </p>
               </div>
 
-              {/* Show request dropdown if the user is the owner */}
-              {group.userId && userId && group.userId.toString() === userId.toString() && group.requests && group.requests.length > 0 && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowRequests(group._id === showRequests ? null : group._id)}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg"
-                  >
-                    Requests ({group.requests.length})
-                  </button>
-                  {showRequests === group._id && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10">
-                      {group.requests.map((request) => (
-                        <div key={request._id} className="p-2 border-b">
-                          <p className="text-sm text-gray-700 dark:text-gray-300">Request from: {request.name}</p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">Role: {request.role}</p>
-                          <div className="flex justify-between mt-2">
-                            <button
-                              onClick={() => handleAcceptRejectRequest(group._id, request._id, 'accepted')}
-                              className="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-lg"
-                            >
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => handleAcceptRejectRequest(group._id, request._id, 'rejected')}
-                              className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-lg"
-                            >
-                              Reject
-                            </button>
+              {group.userId &&
+                userId &&
+                group.userId.toString() === userId.toString() &&
+                group.requests &&
+                group.requests.length > 0 && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowRequests(group._id === showRequests ? null : group._id)}
+                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg"
+                    >
+                      Requests ({group.requests.length})
+                    </button>
+                    {showRequests === group._id && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10">
+                        {group.requests.map((request) => (
+                          <div key={request._id} className="p-2 border-b">
+                            <p className="text-sm text-gray-700 dark:text-gray-300">Request from: {request.name}</p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">Role: {request.role}</p>
+                            <div className="flex justify-between mt-2">
+                              <button
+                                onClick={() => handleAcceptRejectRequest(group._id, request._id, 'accepted')}
+                                className="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-lg"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleAcceptRejectRequest(group._id, request._id, 'rejected')}
+                                className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-lg"
+                              >
+                                Reject
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
 
-            {/* Show the button based on user access */}
-            {group.hasAccess ? (
-              <button
-                onClick={() => handleEnterMessages(group._id)}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg w-full mt-4"
-              >
-                Message
-              </button>
-            ) : (
-              <div className="flex justify-between items-center mt-4">
-                <button
-                  onClick={() => handleRequestJoin(group._id)} // Open role selection prompt
-                  className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg w-full mt-4"
-                >
-                  Request to Join
-                </button>
-              </div>
-            )}
+            {isGroupExpired(group.createdAt) ? (
+  <button className="bg-gray-500 text-white py-3 px-6 rounded-lg w-full mt-4 cursor-not-allowed" disabled>
+    Closed
+  </button>
+) : hasAccess(group) ? (
+  <button
+    onClick={() => handleEnterMessages(group._id)}
+    className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg w-full mt-4"
+  >
+    Message
+  </button>
+) : (
+  <button
+    onClick={() => handleRequestJoin(group._id)}
+    className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg w-full mt-4"
+  >
+    Request to Join
+  </button>
+)}
+
           </div>
         ))}
       </div>
 
-      {/* Role selection modal */}
       {showRolePrompt && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-1/3">

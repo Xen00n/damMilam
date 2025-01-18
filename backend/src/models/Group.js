@@ -3,7 +3,10 @@ import mongoose from "mongoose";
 const groupSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  access: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  access: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    role: { type: String, enum: ['buyer', 'seller'], required: true }, // Role added to access
+  }],
   participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   requests: [{
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Store the userId to reference the user
