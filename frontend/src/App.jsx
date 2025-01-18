@@ -12,7 +12,7 @@ import AddProduct from './pages/AddProduct';
 import EditProfile from './pages/EditProfile';
 import VerifyEmailChange from './components/VerifyEmailChange';
 import MessagePage from './pages/MessagePage';
-
+import ConfirmOrder from './pages/ConfirmOrder';
 
 function App() {
   const [isLogedIn, setisLogedIn] = useState(() => {
@@ -51,6 +51,7 @@ function App() {
                 <Route path="/add-product" element={<AddProduct />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/groups/:groupId/messages" element={<MessagePage />} />
+                <Route path="/confirmorder/:productId" element={<ConfirmOrder />} />
             </Routes>
         </Router>
     </div>

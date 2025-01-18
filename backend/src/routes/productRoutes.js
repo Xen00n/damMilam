@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import Product from '../models/Product.js';
+import User from '../models/Product.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
@@ -109,6 +110,34 @@ router.get('/products', async (req, res) => {
     res.status(200).json(products);
   } catch (err) {
     res.status(500).json({ message: 'Server Error', error: err });
+  }
+});
+router.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find().populate('user', 'name email'); // Populate the user field to get user details
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ message: 'Server Error', error: err });
+  }
+});
+router.get('/products/:productId', async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId).populate("user");
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json({
+      title: product.title,
+      photo: product.photo,
+      price: product.price,
+      description: product.description,
+      user: { name: product.user.name, email: product.user.email }
+
+    });
+  } catch (err) {
+    console.error('Error fetching product data:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

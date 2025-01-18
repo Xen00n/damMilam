@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 import { FaTag, FaPaperclip } from "react-icons/fa"; // For icons
 
 const socket = io("http://localhost:6969"); // Replace with your backend URL
 
 const MessagePage = () => {
   const { groupId } = useParams();
+  const [productId,setProductId] = useState("");
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [priceOffer, setPriceOffer] = useState("");
@@ -16,6 +18,7 @@ const MessagePage = () => {
   const [userAliases, setUserAliases] = useState({});
   const [isPriceVisible, setIsPriceVisible] = useState(false); // Toggle price input visibility
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   // Function to scroll to the bottom of the messages container
   const scrollToBottom = () => {
@@ -46,6 +49,7 @@ const MessagePage = () => {
           `http://localhost:6969/api/groups/${groupId}`
         );
         setGroupName(response.data.groupName);
+        setProductId(response.data.productId);
 
         // Generate user aliases (e.g., Seller 1, Buyer 1)
         const aliases = response.data.access.reduce((acc, entry) => {
@@ -166,8 +170,9 @@ const MessagePage = () => {
     }
   };
 
-  const handlePurchase = (messageId) =>{
-    
+
+  const handlePurchase = () => {
+    navigate(`/confirmorder/${productId}`);
   }
 
   return (
@@ -221,7 +226,7 @@ const MessagePage = () => {
     {msg.negotiationStatus === "accepted" &&
   userAliases[userName]?.role?.startsWith("Buyer") && (
     <button
-      onClick={() => handlePurchase(msg._id)}
+      onClick={() => handlePurchase()}
       className="mt-2 w-full sm:w-auto bg-blue-600 dark:bg-blue-200 text-white dark:text-gray-900 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 hover:bg-yellow-600 dark:hover:bg-yellow-500 hover:shadow-lg hover:scale-105"
     >
       🛒  Purchase
