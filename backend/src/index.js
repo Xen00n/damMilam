@@ -8,6 +8,8 @@ import productRoutes from './routes/productRoutes.js';
 import bargainingGroupRoutes from './routes/bargainingGroup.js';
 import Message from './models/Message.js';
 import messageRoutes from './routes/messageRoutes.js';
+import Product from './models/Product.js';
+import Group from './models/Group.js';
 
 dotenv.config();
 
@@ -106,23 +108,27 @@ function setupSocketIO(server) {
   
     // Respond to an offer (Accept, Reject, or Counter)
     // Respond to an offer (Accept, Reject, or Counter)
-socket.on('respondToOffer', async ({ groupId, messageId, status, counterPrice }, callback) => {
+socket.on('respondToOffer', async ({ groupId, messageId, status }, callback) => {
   try {
     const message = await Message.findById(messageId);
+    const group = await Group.findById(groupId);
+    const product = await Product.findById(group.productId);
     if (!message) {
       callback('Message not found');
       return;
     }
-
+    if (!product) {
+      callback('Product not found');
+      return;
+    }
     // Update negotiation status
     message.negotiationStatus = status;
-
-    // If it's a counter offer, update the price
-    if (status === 'counter' && counterPrice) {
-      message.priceOffer = counterPrice;
+    if(status == 'accepted' ){
+      product.price = message.priceOffer;
     }
 
     await message.save();
+    await product.save();
 
     // Emit the updated message to the group
     io.to(groupId).emit('updateOfferStatus', message);

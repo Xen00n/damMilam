@@ -166,6 +166,10 @@ const MessagePage = () => {
     }
   };
 
+  const handlePurchase = (messageId) =>{
+    
+  }
+
   return (
     <div className="bg-light dark:bg-gray-900 min-h-screen p-4 sm:p-8 transition-colors duration-300">
       <div className="max-w-3xl mx-auto">
