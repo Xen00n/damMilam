@@ -40,6 +40,7 @@ router.get('/groups/:groupId', async (req, res) => {
 
     res.json({
       groupName: group.groupName,
+      productId: group.productId,
       access: accessRoles,
     });
   } catch (err) {
