@@ -9,10 +9,8 @@ const MessagePage = () => {
   const { groupId } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [userRole, setUserRole] = useState(''); // Store user's role (buyer/seller)
-  const [userName, setUserName] = useState(''); // Store user's name
+  const [userName, setUserName] = useState('User_' + Math.floor(Math.random() * 1000)); // Generate anonymous username
   const [groupName, setGroupName] = useState('');
-  const [isUserReady, setIsUserReady] = useState(false); // Track if user data is ready for sending messages
   const messagesEndRef = useRef(null);
 
   // Function to scroll to the bottom of the messages container
@@ -20,21 +18,8 @@ const MessagePage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Fetch user data and messages
+  // Fetch group data and messages
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get('http://localhost:6969/api/user/profile', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
-        });
-        setUserName(response.data.name); // Assuming name is in the response
-        setUserRole(response.data.role); // Assuming role is included in the user profile response
-        setIsUserReady(true); // Set user data as ready for sending messages
-      } catch (err) {
-        console.error('Error fetching user data:', err);
-      }
-    };
-
     const fetchGroupData = async () => {
       try {
         const response = await axios.get(`http://localhost:6969/api/groups/${groupId}`);
@@ -53,7 +38,6 @@ const MessagePage = () => {
       }
     };
 
-    fetchUserData();
     fetchGroupData();
     fetchMessages();
 
@@ -76,11 +60,11 @@ const MessagePage = () => {
   }, [messages]);
 
   const sendMessage = () => {
-    if (newMessage.trim() && isUserReady) {
-      const messageData = { groupId, message: newMessage, senderRole: userRole, senderName: userName };
+    if (newMessage.trim()) {
+      const messageData = { groupId, message: newMessage, senderName: userName }; // Use anonymous name
       socket.emit('sendMessage', messageData, (err) => {
-        if (err) console.error('Error sending message:', err);
-        else setNewMessage(''); // Clear input after sending the message
+        if (err) console.error(err);
+        else setNewMessage(''); // Clear the input after sending
       });
     }
   };
@@ -102,14 +86,15 @@ const MessagePage = () => {
             <div
               key={index}
               className={`message mb-3 p-3 rounded-lg ${
-                msg.senderRole === userRole
+                msg.senderName === userName
                   ? 'bg-blue-500 text-white self-end'
                   : 'bg-gray-200 dark:bg-gray-600 text-gray-800 self-start'
               }`}
               style={{ maxWidth: '75%' }}
             >
               <p className="font-semibold text-sm text-gray-900 dark:text-white">
-                {msg.senderRole === 'buyer' ? 'Buyer' : 'Seller'} {/* Display Buyer/Seller instead of Name */}
+                {/* Display the sender name if available, otherwise show 'Anonymous User' */}
+                {msg.senderName || 'Anonymous User'}
               </p>
               <p className="text-base">{msg.text}</p>
             </div>
