@@ -51,7 +51,13 @@ const Groups = () => {
       typeof entry === 'string' ? entry === userId : entry.userId === userId
     );
   };
-
+  const isGroupExpired = (createdAt) => {
+    const createdDate = new Date(createdAt);
+    const expirationDate = new Date(createdDate);
+    expirationDate.setDate(expirationDate.getDate() +7);
+    return new Date() > expirationDate; // Returns true if expired
+  };
+  
   // Handle join request for a group
   const handleRequestJoin = (groupId) => {
     setSelectedGroupId(groupId);
@@ -191,23 +197,26 @@ const Groups = () => {
                 )}
             </div>
 
-            {hasAccess(group) ? (
-              <button
-                onClick={() => handleEnterMessages(group._id)}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg w-full mt-4"
-              >
-                Message
-              </button>
-            ) : (
-              <div className="flex justify-between items-center mt-4">
-                <button
-                  onClick={() => handleRequestJoin(group._id)}
-                  className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg w-full mt-4"
-                >
-                  Request to Join
-                </button>
-              </div>
-            )}
+            {isGroupExpired(group.createdAt) ? (
+  <button className="bg-gray-500 text-white py-3 px-6 rounded-lg w-full mt-4 cursor-not-allowed" disabled>
+    Closed
+  </button>
+) : hasAccess(group) ? (
+  <button
+    onClick={() => handleEnterMessages(group._id)}
+    className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg w-full mt-4"
+  >
+    Message
+  </button>
+) : (
+  <button
+    onClick={() => handleRequestJoin(group._id)}
+    className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg w-full mt-4"
+  >
+    Request to Join
+  </button>
+)}
+
           </div>
         ))}
       </div>

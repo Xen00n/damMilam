@@ -53,39 +53,98 @@ function setupSocketIO(server) {
     },
   });
 
+  
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
   
+    // User joins a group
     socket.on('joinGroup', (groupId) => {
       socket.join(groupId);
       console.log(`User joined group: ${groupId}`);
     });
   
+    // Send a regular message
     socket.on('sendMessage', async ({ groupId, message, senderName }, callback) => {
       try {
         const newMessage = new Message({
           groupId,
-          senderName, // Save the actual sender's name
+          senderName,
           text: message,
         });
   
         await newMessage.save();
   
-        // Emit the message to others in the group
+        // Notify other group members
         io.to(groupId).emit('newMessage', newMessage);
-        callback(null); // Acknowledge success
+        callback(null);
       } catch (err) {
-        console.error('Error saving message:', err);
+        console.error('Error sending message:', err);
         callback('Error sending message');
       }
     });
   
+    // Propose an offer
+    socket.on('sendOffer', async ({ groupId, senderName, priceOffer }, callback) => {
+      try {
+        const newMessage = new Message({
+          groupId,
+          senderName,
+          priceOffer,
+          negotiationStatus: 'pending',
+        });
+  
+        await newMessage.save();
+  
+        // Notify group members of the new offer
+        io.to(groupId).emit('newMessage', newMessage);
+        callback(null);
+      } catch (err) {
+        console.error('Error sending offer:', err);
+        callback('Error sending offer');
+      }
+    });
+  
+    // Respond to an offer (Accept, Reject, or Counter)
+    // Respond to an offer (Accept, Reject, or Counter)
+socket.on('respondToOffer', async ({ groupId, messageId, status, counterPrice }, callback) => {
+  try {
+    const message = await Message.findById(messageId);
+    if (!message) {
+      callback('Message not found');
+      return;
+    }
+
+    // Update negotiation status
+    message.negotiationStatus = status;
+
+    // If it's a counter offer, update the price
+    if (status === 'counter' && counterPrice) {
+      message.priceOffer = counterPrice;
+    }
+
+    await message.save();
+
+    // Emit the updated message to the group
+    io.to(groupId).emit('updateOfferStatus', message);
+    callback(null);
+  } catch (err) {
+    console.error('Error responding to offer:', err);
+    callback('Error responding to offer');
+  }
+});
+
+    
+  
+    // Handle user disconnection
     socket.on('disconnect', () => {
       console.log(`User disconnected: ${socket.id}`);
     });
   });
   
+  
 }
+
+
 
 // Routes
 app.get('/', (req, res) => {
