@@ -204,7 +204,7 @@ const MessagePage = () => {
               {msg.priceOffer ? (
   <>
     <p className="text-base">
-      <strong>Offer:</strong> ${msg.priceOffer}
+      <strong>Offer:</strong> Rs.{msg.priceOffer}
     </p>
     <p
       className={`text-sm ${
@@ -227,7 +227,7 @@ const MessagePage = () => {
   userAliases[userName]?.role?.startsWith("Buyer") && (
     <button
       onClick={() => handlePurchase()}
-      className="mt-2 w-full sm:w-auto bg-blue-600 dark:bg-blue-200 text-white dark:text-gray-900 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 hover:bg-yellow-600 dark:hover:bg-yellow-500 hover:shadow-lg hover:scale-105"
+      className="mt-2 w-full sm:w-auto bg-blue-600 dark:bg-blue-200 text-white dark:text-gray-900 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105"
     >
       🛒  Purchase
     </button>

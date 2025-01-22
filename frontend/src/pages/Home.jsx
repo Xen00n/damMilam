@@ -87,7 +87,7 @@ const Home = ({ isLoggedIn }) => {
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{product.title}</h2>
             <p className="text-lg text-gray-700 dark:text-gray-300 mt-2">{product.description}</p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mt-2 font-bold">
-              Price: <span className="text-green-500">${product.price}</span>
+              Price: <span className="text-green-500">Rs.{product.price}</span>
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Seller: {product.user.name}</p>
 

@@ -62,7 +62,7 @@ const ConfirmOrder = () => {
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Description: {product.description}</p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-2 font-semibold">
-              Price: <span className="text-green-500">${product.price}</span>
+              Price: <span className="text-green-500">Rs.{product.price}</span>
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-2">
               Seller: {product.user?.name || "Unknown"}
