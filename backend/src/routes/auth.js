@@ -52,6 +52,7 @@ router.get('/user/profile', authenticate, async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      phoneNumber: user.phoneNumber,
       // Any other fields you need to return
     });
   } catch (err) {
@@ -116,7 +117,7 @@ router.put('/change-password', authenticate, async (req, res) => {
   }
 });
 // Ensure authenticate middleware is applied before accessing req.user.id
-router.put("/change-name", authenticate, async (req, res) => {
+router.put("/change-name-number", authenticate, async (req, res) => {
   try {
     // Check if req.user is properly set
     if (!req.user) {
@@ -124,10 +125,10 @@ router.put("/change-name", authenticate, async (req, res) => {
     }
 
     const userId = req.user.id; // This is where the error occurs
-    const { name } = req.body;
+    const { name,phoneNumber } = req.body;
 
     // Proceed with name update logic
-    const updatedUser = await User.findByIdAndUpdate(userId, { name }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, { name, phoneNumber }, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -135,7 +136,7 @@ router.put("/change-name", authenticate, async (req, res) => {
 
     res.status(200).json({ user: updatedUser });
   } catch (err) {
-    console.error("Error in change-name route:", err);
+    console.error("Error in change route:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -236,11 +237,13 @@ router.get('/verify-email-change', async (req, res) => {
 
 // Signup Route
 router.post('/signup', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phoneNumber } = req.body;
 
   try {
     console.log('Signup request received', req.body);  // Log the request data
-
+      if (!/^\d{10}$/.test(phoneNumber)) {
+        return res.status(400).json({ message: 'Phone number must be exactly 10 digits' });
+      }
     // Check for existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -249,7 +252,7 @@ router.post('/signup', async (req, res) => {
 
     // Hash the password and save user
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword, isVerified: false });
+    const newUser = new User({ name, email, password: hashedPassword,phoneNumber, isVerified: false });
 
     await newUser.save();
 

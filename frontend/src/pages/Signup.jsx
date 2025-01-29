@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Signup = () => {
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', phoneNumber: '' });
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
@@ -19,7 +19,6 @@ const Signup = () => {
             const response = await axios.post(`http://localhost:6969/api/signup`, formData);
             if (response.data.success) {
                 setShowModal(true);
-                // Automatically redirect to login after 3 seconds
                 setTimeout(() => navigate('/login'), 3000);
             } else {
                 setError(response.data.message || 'Signup failed');
@@ -61,6 +60,20 @@ const Signup = () => {
                         />
                     </div>
                     <div>
+                        <label htmlFor="phoneNumber" className="block mb-1 text-gray-600 dark:text-gray-300">Phone Number</label>
+                        <input
+                            type="text"
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
+                            value={formData.phoneNumber}
+                            onChange={handleChange}
+                            required
+                            pattern="\d{10}"
+                            title="Phone number must be exactly 10 digits"
+                        />
+                    </div>
+                    <div>
                         <label htmlFor="password" className="block mb-1 text-gray-600 dark:text-gray-300">Password</label>
                         <input
                             type="password"
@@ -85,7 +98,6 @@ const Signup = () => {
                 </p>
             </div>
 
-            {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg max-w-sm w-full">

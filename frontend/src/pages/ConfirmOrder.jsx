@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Logoo from "../assets/logoo.png";
+
 const ConfirmOrder = () => {
   const { productId } = useParams(); // Product ID from URL
   const [product, setProduct] = useState({
-    title: "product title",
-    photo: "https://via.placeholder.com/300",
-    price: "",
-    description:"",
+    title: "",
+    photo: "",
+    price: 0,
+    description: "",
     user: {
-      name: "Seller",
-      email: "placeholder@example.com",
+      name: "",
+      email: "",
     },
   });
   const [loading, setLoading] = useState(false);
 
+  // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -24,6 +25,7 @@ const ConfirmOrder = () => {
         setProduct(response.data);
       } catch (err) {
         console.error("Error fetching product details:", err);
+        alert("Failed to fetch product details. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -31,12 +33,52 @@ const ConfirmOrder = () => {
 
     if (productId) fetchProduct();
   }, [productId]);
+  const handlePayment = async () => {
+    try {
+      console.log("Initiating Khalti Payment...");
+    const tokena = localStorage.getItem("authToken");
+    if (!tokena) {
+      alert("User is not authenticated.");
+      return;
+    }
 
-  const handlePayment = () => {
-    // Implement your payment logic here
-    //navigate
-    console.log("Proceeding to payment for product:", product.title);
+
+    const userResponse = await axios.get("http://localhost:6969/api/profile", {
+      headers: { Authorization: `Bearer ${tokena}` },
+    });
+
+    const user = userResponse.data.user; 
+
+
+    if (!user.name || !user.email || !user.phoneNumber) {
+      alert("Missing user information. Please update your profile.");
+      return;
+    }
+
+      const response = await axios.post("http://localhost:6969/api/khalti/initiate-payment", {
+        amount: product.price * 100, // Khalti requires the amount in paisa
+        productId: productId,
+        productName: product.title,
+        customer_info: {
+          name: user.name,
+          email: user.email,
+          phone: user.phoneNumber,
+        },
+        websiteUrl: window.location.href
+      });
+  
+  
+      const { paymentUrl } = response.data;
+  
+
+      window.open(paymentUrl, "_blank");
+    } catch (error) {
+      console.error("Failed to initiate payment:", error);
+      alert("Failed to start payment. Please try again.");
+    }
   };
+  
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -49,8 +91,8 @@ const ConfirmOrder = () => {
           {/* Product Image */}
           <div className="sm:w-1/2 mb-6 sm:mb-0">
             <img
-              src={product.photo}
-              // alt={product.title}
+              src={product.photo || "https://via.placeholder.com/300"}
+              alt={product.title || "Product Image"}
               className="w-full h-72 rounded-lg object-contain"
             />
           </div>
@@ -58,11 +100,13 @@ const ConfirmOrder = () => {
           {/* Product Details */}
           <div className="sm:w-1/2 sm:pl-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {product.title}
+              {product.title || "Product Title"}
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Description: {product.description}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Description: {product.description || "No description available."}
+            </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-2 font-semibold">
-              Price: <span className="text-green-500">Rs.{product.price}</span>
+              Price: <span className="text-green-500">Rs. {product.price || 0}</span>
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-2">
               Seller: {product.user?.name || "Unknown"}
@@ -72,8 +116,6 @@ const ConfirmOrder = () => {
             </p>
           </div>
         </div>
-
-       
 
         {/* Proceed to Pay Button */}
         <div className="mt-6 text-center">

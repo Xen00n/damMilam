@@ -13,6 +13,8 @@ import EditProfile from './pages/EditProfile';
 import VerifyEmailChange from './components/VerifyEmailChange';
 import MessagePage from './pages/MessagePage';
 import ConfirmOrder from './pages/ConfirmOrder';
+import OrderSuccess from './pages/OrderSuccess';
+import OrderFailed from './pages/OrderFailed';
 
 function App() {
   const [isLogedIn, setisLogedIn] = useState(() => {
@@ -52,6 +54,8 @@ function App() {
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/groups/:groupId/messages" element={<MessagePage />} />
                 <Route path="/confirmorder/:productId" element={<ConfirmOrder />} />
+                <Route path="/ordersuccess/:productId" element={<OrderSuccess />} />
+                <Route path="/orderfailed/:productId" element={<OrderFailed />} />
             </Routes>
         </Router>
     </div>

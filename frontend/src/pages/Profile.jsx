@@ -176,6 +176,9 @@ const Profile = (props) => {
               Member since: {user.memberSince || "N/A"}
             </p>
             <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              Phone Number: {user.phoneNumber || "N/A"}
+            </p>
             <button
               onClick={() => navigate("/edit-profile")}
               className="mt-2 px-2 py-0 bg-green-600 hover:bg-green-900 text-white rounded"

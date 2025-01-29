@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { resolvePath, useNavigate } from "react-router-dom";
 
 const EditProfile = ({ userId }) => {
   const [user, setUser] = useState({});
@@ -48,24 +48,24 @@ const EditProfile = ({ userId }) => {
   };
 
   const handleSave = async () => {
-    if (editingField !== "name") return; // Only proceed if editing the name field
-  
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.put(
-        `http://localhost:6969/api/change-name`,
-        { name: tempData.name }, // Send only the name field
+        `http://localhost:6969/api/change-name-number`,
+        { name: tempData.name,
+          phoneNumber : tempData.phoneNumber
+        }, // Send only the name field
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
   
-      setUser((prev) => ({ ...prev, name: response.data.user.name })); // Update only the name
+      setUser((prev) => ({ ...prev, name: response.data.user.name, phoneNumber : response.data.user.phoneNumber })); // Update only the name
       setEditingField(null);
-      setMessage("Name updated successfully.");
+      setMessage("Updated successfully.");
     } catch (err) {
-      console.error("Error updating name: ", err);
-      setError("Failed to update name.");
+      console.error("Error updating : ", err);
+      setError("Failed to update .");
     }
   };
   
@@ -162,7 +162,29 @@ const EditProfile = ({ userId }) => {
               {editingField === "name" ? "Cancel" : "Edit"}
             </button>
           </div>
-
+          <div className="flex items-center justify-between">
+            <label className="font-semibold text-gray-700 dark:text-gray-300">
+              Phone Number:
+            </label>
+            {editingField === "phoneNumber" ? (
+              <input
+                type="text"
+                value={tempData.phoneNumber||""}
+                onChange={(e) => setTempData({ ...tempData, phoneNumber: e.target.value })}
+                className="p-2 border rounded w-full sm:w-2/3"
+              />
+            ) : (
+              <p className="text-gray-900 dark:text-gray-200">{user.phoneNumber}</p>
+            )}
+            <button
+              onClick={() =>
+                editingField === "phoneNumber" ? setEditingField(null) : handleEdit("phoneNumber")
+              }
+              className="ml-4 text-blue-500"
+            >
+              {editingField === "phoneNumber" ? "Cancel" : "Edit"}
+            </button>
+          </div>
           {/* Email */}
           <div className="flex items-center justify-between">
             <label className="font-semibold text-gray-700 dark:text-gray-300">

@@ -8,6 +8,7 @@ import productRoutes from './routes/productRoutes.js';
 import bargainingGroupRoutes from './routes/bargainingGroup.js';
 import Message from './models/Message.js';
 import messageRoutes from './routes/messageRoutes.js';
+import paymentRoute from './routes/paymentRoute.js';
 import Product from './models/Product.js';
 import Group from './models/Group.js';
 
@@ -156,6 +157,8 @@ socket.on('respondToOffer', async ({ groupId, messageId, status }, callback) => 
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
+
+app.use('/api', paymentRoute);
 
 app.use('/api', authRoutes);
 app.use('/api', productRoutes);
