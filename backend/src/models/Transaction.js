@@ -4,7 +4,7 @@ const transactionSchema = new mongoose.Schema(
     {
       pidx: { type: String, required: true, unique: true }, // Payment identifier
       status: { type: String, required: true, enum: ["Completed", "Pending", "User canceled"] },
-      transaction_id: { type: String, required: false, unique: true },
+      transaction_id: { type: String, required: false },
       tidx: { type: String, required: false }, // Same as transaction_id
       amount: { type: Number, required: true }, // Amount in paisa
       mobile: { type: String, required: false }, // Payer KHALTI ID

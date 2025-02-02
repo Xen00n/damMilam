@@ -10,9 +10,6 @@ router.post("/khalti/initiate-payment", async (req, res) => {
     if (!amount || amount <= 0 || !productId || !productName) {
       return res.status(400).json({ error: "Invalid payment data" });
     }
-
-    console.log("Initiating Khalti Payment...");
-
     const response = await axios.post("https://dev.khalti.com/api/v2/epayment/initiate/", {
       return_url: "http://localhost:6969/api/khalti/payment-response", 
       website_url: websiteUrl, 
@@ -27,7 +24,6 @@ router.post("/khalti/initiate-payment", async (req, res) => {
       },
     });
 
-    console.log("Khalti Initiation Response:", response.data);
     res.json({ token: response.data.token, paymentUrl: response.data.payment_url });
 
   } catch (error) {
