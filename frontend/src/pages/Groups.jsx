@@ -5,15 +5,12 @@ import axios from 'axios';
 const Groups = () => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState('buyer'); // Default role
+  const [role] = useState('buyer'); // Default role
   const [userName, setUserName] = useState(''); // Logged-in user's name
   const [userId, setUserId] = useState(null); // Logged-in user's ID
-  const [showRolePrompt, setShowRolePrompt] = useState(false); // Role selection modal control
-  const [selectedGroupId, setSelectedGroupId] = useState(null); // Group ID for join request
   const [showRequests, setShowRequests] = useState(null); // Track request dropdown visibility
   const navigate = useNavigate();
 
-  // Fetch user and groups data on component mount
   useEffect(() => {
     const fetchUserAndGroups = async () => {
       try {
@@ -45,32 +42,13 @@ const Groups = () => {
     fetchUserAndGroups();
   }, []);
 
-  // Check if the logged-in user has access to the group
   const hasAccess = (group) => {
     return group.access.some((entry) =>
       typeof entry === 'string' ? entry === userId : entry.userId === userId
     );
   };
-  const isGroupExpired = (createdAt) => {
-    const createdDate = new Date(createdAt);
-    const expirationDate = new Date(createdDate);
-    expirationDate.setDate(expirationDate.getDate() +7);
-    return new Date() > expirationDate; // Returns true if expired
-  };
-  
-  // Handle join request for a group
-  const handleRequestJoin = (groupId) => {
-    setSelectedGroupId(groupId);
-    setShowRolePrompt(true);
-  };
-
-  // Handle role selection for join request
-  const handleRoleSelection = async () => {
+  const handleRoleSelection = async (groupId) => {
     try {
-      if (!role || !['buyer', 'seller'].includes(role)) {
-        alert('Please select a valid role (buyer or seller)');
-        return;
-      }
 
       if (!userName || typeof userName !== 'string') {
         alert('Please provide a valid user name');
@@ -78,7 +56,7 @@ const Groups = () => {
       }
 
       const response = await axios.post(
-        `http://localhost:6969/api/bargaining-group/request/${selectedGroupId}`,
+        `http://localhost:6969/api/bargaining-group/request/${groupId}`,
         { role, name: userName },
         {
           headers: {
@@ -88,7 +66,6 @@ const Groups = () => {
       );
 
       alert('Join request sent successfully');
-      setShowRolePrompt(false);
     } catch (err) {
       console.error('Error sending join request:', err);
       alert('Error sending join request');
@@ -153,7 +130,7 @@ const Groups = () => {
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{group.groupName}</h2>
                 <p className="text-lg text-gray-700 dark:text-gray-300 mt-2">{group.description}</p>
                 <p className="text-lg text-gray-700 dark:text-gray-300 mt-2 font-bold">
-                  Price: <span className="text-green-500">${group.price}</span>
+                  Price: <span className="text-green-500">Rs. {group.price}</span>
                 </p>
               </div>
 
@@ -197,11 +174,7 @@ const Groups = () => {
                 )}
             </div>
 
-            {isGroupExpired(group.createdAt) ? (
-  <button className="bg-gray-500 text-white py-3 px-6 rounded-lg w-full mt-4 cursor-not-allowed" disabled>
-    Closed
-  </button>
-) : hasAccess(group) ? (
+             {hasAccess(group) ? (
   <button
     onClick={() => handleEnterMessages(group._id)}
     className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg w-full mt-4"
@@ -210,7 +183,7 @@ const Groups = () => {
   </button>
 ) : (
   <button
-    onClick={() => handleRequestJoin(group._id)}
+    onClick={() => handleRoleSelection(group._id)}
     className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg w-full mt-4"
   >
     Request to Join
@@ -221,41 +194,7 @@ const Groups = () => {
         ))}
       </div>
 
-      {showRolePrompt && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Select Your Role</h2>
-            <div className="flex justify-around mb-4">
-              <button
-                onClick={() => setRole('buyer')}
-                className={`px-4 py-2 rounded-lg ${role === 'buyer' ? 'bg-green-500 text-white' : 'bg-gray-300 text-black'}`}
-              >
-                Buyer
-              </button>
-              <button
-                onClick={() => setRole('seller')}
-                className={`px-4 py-2 rounded-lg ${role === 'seller' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
-              >
-                Seller
-              </button>
-            </div>
-            <div className="flex justify-end">
-              <button
-                onClick={handleRoleSelection}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
-              >
-                Confirm
-              </button>
-              <button
-                onClick={() => setShowRolePrompt(false)}
-                className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg ml-4"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 };

@@ -5,8 +5,6 @@ import axios from "axios";
 const Profile = (props) => {
   const [user, setUser] = useState({});
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [history, setHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("products");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -205,26 +203,7 @@ const Profile = (props) => {
   >
     Add Product
   </button>
-  <button
-    onClick={() => setActiveTab("cart")}
-    className={`font-bold ${
-      activeTab === "cart"
-        ? "text-green-700 dark:text-green-600"
-        : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:text-green-600"
-    } py-2 px-3 w-full sm:w-auto text-center`}
-  >
-    Cart
-  </button>
-  <button
-    onClick={() => setActiveTab("history")}
-    className={`font-bold ${
-      activeTab === "history"
-        ? "text-green-700 dark:text-green-600"
-        : "text-gray-900 dark:text-white hover:text-green-700 dark:hover:text-green-600"
-    } py-2 px-3 w-full sm:w-auto text-center`}
-  >
-    History
-  </button>
+
 </div>
 {sessionExpired && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">

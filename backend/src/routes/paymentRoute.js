@@ -2,16 +2,21 @@ import express from 'express';
 import axios from 'axios';
 const router = express.Router();
 import Transaction from '../models/Transaction.js';
+import Product from '../models/Product.js';
+import nodemailer from 'nodemailer';
+import Group from '../models/Group.js';
 
-router.post("/khalti/initiate-payment", async (req, res) => {
+
+router.post("/khalti/initiate-payment/:groupId", async (req, res) => {
   try {
+    const {groupId} = req.params;
     const { amount, productId, productName,customer_info, websiteUrl} = req.body;
 
     if (!amount || amount <= 0 || !productId || !productName) {
       return res.status(400).json({ error: "Invalid payment data" });
     }
     const response = await axios.post("https://dev.khalti.com/api/v2/epayment/initiate/", {
-      return_url: "http://localhost:6969/api/khalti/payment-response", 
+      return_url: `http://localhost:6969/api/khalti/payment-response/${groupId}`, 
       website_url: websiteUrl, 
       amount:100, 
       purchase_order_id: productId, 
@@ -38,8 +43,9 @@ router.post("/khalti/initiate-payment", async (req, res) => {
     }
   }
 });
-router.get("/khalti/payment-response", async (req, res) => {
+router.get("/khalti/payment-response/:groupId", async (req, res) => {
   try {
+    const {groupId} = req.params;
     const { pidx, status, transaction_id, amount, mobile, purchase_order_id, purchase_order_name } = req.query;
     await Transaction.create({
       pidx,
@@ -50,8 +56,40 @@ router.get("/khalti/payment-response", async (req, res) => {
       purchase_order_id,
       purchase_order_name,
     });
-    if(status == "Completed")
+    console.log(groupId);
+    await Group.findByIdAndDelete(groupId);
+    if(status == "Completed"){
+      const product = await Product.findById(purchase_order_id).populate("user");
+      if (!product) {
+        return res.status(404).send("Product not found.");
+      }
+      
+
+      const seller = product.user;
+      if (!seller ) {
+        return res.status(404).send("Seller not found.");
+      }
+
+      const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+              user: process.env.EMAIL_USER, // Your Gmail address
+              pass: process.env.EMAIL_PASS, // App password (if using Gmail)
+          },
+      });
+
+      const mailOptionsSeller = {
+        from: process.env.EMAIL_USER,
+        to: seller.email,
+        subject: "Your Product Has Been Sold",
+        text: `Dear ${seller.name},\n\nYour product '${product.title}' has been sold successfully!\nAmount Received: Rs. ${amount}\n\nCongratulations on your sale!`,
+      };
+
+      await transporter.sendMail(mailOptionsSeller);
+      product.status = "Sold";
+      await product.save();
       return res.redirect(`http://localhost:5173/ordersuccess/${purchase_order_id}`);
+    }
     else
       return res.redirect(`http://localhost:5173/orderfailed/${purchase_order_id}`);
   } catch (error) {

@@ -10,9 +10,6 @@ router.get('/messages/:groupId', async (req, res) => {
     const { groupId } = req.params;
     const messages = await Message.find({ groupId }).sort({ timestamp: 1 });
 
-    if (!messages.length) {
-      return res.status(404).json({ message: 'No messages found for this group' });
-    }
 
     res.json(messages);
   } catch (err) {

@@ -1,6 +1,8 @@
 import express from 'express';
 import Group from '../models/Group.js';
+import Product from '../models/Product.js';
 import { authenticate } from '../routes/auth.js'; // Import the authenticate middleware
+import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
@@ -10,7 +12,9 @@ router.get('/', authenticate, async (req, res) => {
   
     try {
       // Fetch groups and populate relevant fields
-      const groups = await Group.find()
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7); 
+      const groups = await Group.find({ createdAt: { $gte: sevenDaysAgo } })
         .populate('productId')     // Populate product details
         .populate('userId')        // Populate the group owner (user)
         .populate('participants')  // Populate participants
@@ -35,35 +39,43 @@ router.get('/', authenticate, async (req, res) => {
       res.status(500).json({ message: 'Error fetching groups' });
     }
 });
-
-
-// **New Route** to create a new group
-// **New Route** to create a new group
 router.post('/create', authenticate, async (req, res) => {
     const userId = req.user._id; // The user creating the group (authenticated user)
     const { productName, productId, price } = req.body; // Extract productName, productId, and price from the body
-  
+
     // Check if all required fields are provided
     if (!productName || !productId || !price) {
       return res.status(400).json({ message: 'Product name, product ID, and price are required' });
     }
-  
+
     try {
+      // Fetch the product to get the seller (owner)
+      const product = await Product.findById(productId).populate('user', 'email name'); 
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+
+      const sellerId = product.user; // Extract seller's userId from product
+      const sellerEmail = product.user.email; 
+      const sellerName = product.user.name; 
       // Create a new group
       const newGroup = new Group({
         productId,
         userId, // Set the creator of the group as the user
-        access: [{ userId, role: 'buyer' }], // Initially, the creator has access
+        access: [
+          { userId, role: 'buyer' }, // Creator as buyer
+          { userId: sellerId, role: 'seller' } // Seller added with seller role
+        ],
         participants: [], // No participants yet
         requests: [], // No requests yet
         name: productName, // Set the group name as the product name
         price, // Add the price of the product
         groupName: productName, // You can either use productName or pass something else for groupName
       });
-  
+
       // Save the group to the database
       const group = await newGroup.save();
-  
+      await sendEmailToSeller(sellerEmail, sellerName, productName);
       // Return success response
       res.status(201).json({
         success: true,
@@ -75,6 +87,40 @@ router.post('/create', authenticate, async (req, res) => {
       res.status(500).json({ message: 'Error creating group' });
     }
 });
+router.get('/returnProductId/:groupId', async (req, res) => {
+  try {
+    const {groupId} = req.params;
+    const group = await Group.findById(groupId);
+    console.log(group.productId);
+    res.status(200).json({productId: group.productId});
+  } catch (err) {
+    res.status(500).json({ message: 'Server Error', error: err });
+  }
+});
+const sendEmailToSeller = async (email, name, productName) => {
+  try {
+      const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+              user: process.env.EMAIL_USER, // Your Gmail address
+              pass: process.env.EMAIL_PASS, // App password (if using Gmail)
+          },
+      });
+
+      const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'New Bargaining Group Created for Your Product!',
+          text: `Hello ${name},\n\nA user has created a bargaining group for your product: "${productName}".\n\nCheck it out now!\n\nBest regards,\nTeam damMilam.`,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent to ${email}`);
+  } catch (error) {
+      console.error('Error sending email:', error);
+  }
+};
+
 // Route to send a join request to a group (requires authentication)
 router.post('/request/:groupId', authenticate, async (req, res) => {
     const userId = req.user._id; // Get the authenticated user's ID

@@ -106,7 +106,7 @@ router.post('/add-product', verifyToken, upload.single('photo'), async (req, res
 
 router.get('/products', async (req, res) => {
   try {
-    const products = await Product.find().populate('user', 'name email'); // Populate the user field to get user details
+    const products = await Product.find({ status: { $ne: 'Sold' } }).populate('user', 'name email'); // Populate the user field to get user details
     res.status(200).json(products);
   } catch (err) {
     res.status(500).json({ message: 'Server Error', error: err });

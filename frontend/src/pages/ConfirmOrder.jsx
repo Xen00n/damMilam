@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const ConfirmOrder = () => {
-  const { productId } = useParams(); // Product ID from URL
+  const { groupId } = useParams();
+  const [productId,setProductId] = useState(''); 
   const [product, setProduct] = useState({
     title: "",
     photo: "",
@@ -18,9 +19,24 @@ const ConfirmOrder = () => {
 
   // Fetch product details
   useEffect(() => {
+    const fetchProductId = async () => {
+      try {
+        if (!groupId) return; // Ensure groupId is available
+        const response = await axios.get(`http://localhost:6969/api/bargaining-group/returnProductId/${groupId}`);
+        setProductId(response.data.productId);
+      } catch (error) {
+        console.error("Error fetching productId:", error);
+        alert("Failed to fetch productId.");
+      }
+    };
+
+    fetchProductId();
+  }, [groupId]);
+  useEffect(() => { // Run only when groupId changes
     const fetchProduct = async () => {
       try {
         setLoading(true);
+        
         const response = await axios.get(`http://localhost:6969/api/products/${productId}`);
         setProduct(response.data);
       } catch (err) {
@@ -55,7 +71,7 @@ const ConfirmOrder = () => {
       return;
     }
 
-      const response = await axios.post("http://localhost:6969/api/khalti/initiate-payment", {
+      const response = await axios.post(`http://localhost:6969/api/khalti/initiate-payment/${groupId}`, {
         amount: product.price * 100, // Khalti requires the amount in paisa
         productId: productId,
         productName: product.title,

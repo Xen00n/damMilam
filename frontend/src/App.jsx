@@ -53,7 +53,7 @@ function App() {
                 <Route path="/add-product" element={<AddProduct />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/groups/:groupId/messages" element={<MessagePage />} />
-                <Route path="/confirmorder/:productId" element={<ConfirmOrder />} />
+                <Route path="/confirmorder/:groupId" element={<ConfirmOrder />} />
                 <Route path="/ordersuccess/:productId" element={<OrderSuccess />} />
                 <Route path="/orderfailed/:productId" element={<OrderFailed />} />
             </Routes>

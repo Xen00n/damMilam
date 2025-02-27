@@ -172,7 +172,7 @@ const MessagePage = () => {
 
 
   const handlePurchase = () => {
-    navigate(`/confirmorder/${productId}`);
+    navigate(`/confirmorder/${groupId}`);
   }
 
   return (
