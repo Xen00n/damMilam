@@ -24,7 +24,7 @@ router.post("/khalti/initiate-payment/:groupId", async (req, res) => {
       customer_info: customer_info,
     }, {
       headers: {
-        Authorization: "Key dfd845c0d75747d68295dcf0e90afd0e", 
+        Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`, 
         "Content-Type": "application/json",
       },
     });
