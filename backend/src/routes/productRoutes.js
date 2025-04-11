@@ -45,8 +45,8 @@ router.get('/products-user', verifyToken, async (req, res) => {
 
 // POST route to add a product
 router.post('/add-product', verifyToken, upload.single('photo'), async (req, res) => {
-  console.log("Received data:", req.body);
-  console.log("Received file:", req.file);
+  // console.log("Received data:", req.body);
+  // console.log("Received file:", req.file);
 
   const { title, description, price, status } = req.body;
 
